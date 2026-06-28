@@ -1,3 +1,17 @@
 {
-  "type": "module"
+  "name": "stalker-m3u",
+  "version": "2.0.0",
+  "description": "Stalker Middleware IPTV to M3U converter - MAC + Serial + Device ID auth",
+  "main": "api/playlist.m3u.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod",
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "vercel": "^37.0.0"
+  }
 }
