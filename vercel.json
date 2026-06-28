@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    { "source": "/api/playlist.m3u", "destination": "/api/playlist.m3u.js" },
+    { "source": "/api/playlist.json", "destination": "/api/playlist.m3u.js?format=json" },
+    { "source": "/api/mac/:mac/playlist.m3u", "destination": "/api/playlist.m3u.js?mac=$mac" },
+    { "source": "/:path(.*)", "destination": "/api/playlist.m3u.js" }
+  ],
+  "env": {
+    "STALKER_BASE": "http://livebox.pro:80/c",
+    "STALKER_MAC": "00:1A:79:CE:5E:01",
+    "STALKER_SERIAL": "6BD46F6477D17",
+    "STALKER_DEV_ID1": "BAFFF2D04EA1A75B3F68C1A2AD96557C79C4024A1186605F617F34DD476CA73D",
+    "STALKER_DEV_ID2": "59FC31A3CE15795E86B2A340310541733C0948A9528A10AC047927E5222D414F"
+  }
+}
