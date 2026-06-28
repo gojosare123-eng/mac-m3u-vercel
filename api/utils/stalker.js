@@ -9,12 +9,12 @@ class StalkerClient {
     devId2,
     deviceId
   }) {
-    this.baseUrl = baseUrl'http://livebox.pro:80/c');
-    this.mac = (mac || '00:1A:79:CE:5E:01').toUpperCase();
-    this.serial = serial || '6BD46F6477D17';
-    this.devId1 = devId1 || 'BAFFF2D04EA1A75B3F68C1A2AD96557C79C4024A1186605F617F34DD476CA73D';
-    this.devId2 = devId2 || 'BAFFF2D04EA1A75B3F68C1A2AD96557C79C4024A1186605F617F34DD476CA73D';
-    this.deviceId = deviceId || 'BAFFF2D04EA1A75B3F68C1A2AD96557C79C4024A1186605F617F34DD476CA73D';
+    this.baseUrl = baseUrl.replace(/\/+$/, '');
+    this.mac = (mac || '').toUpperCase();
+    this.serial = serial || '';
+    this.devId1 = devId1 || '';
+    this.devId2 = devId2 || '';
+    this.deviceId = deviceId || '';
     this.token = null;
     this.cookie = this._buildCookie();
     this.userAgent = 'Mozilla/5.0 (QtEmbedded; U; Linux; C)';
