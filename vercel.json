@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/mac/playlist.m3u",
+      "destination": "/api/mac/playlist"
+    }
+  ]
+}
