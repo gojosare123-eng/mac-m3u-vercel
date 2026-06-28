@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stalker M3U Generator</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: ui-monospace, monospace; max-width: 800px; margin: 40px auto; padding: 0 20px; background: #0f0f0f; color: #e0e0e0; }
+    input, button, select { font-family: inherit; padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box; background: #1a1a1a; border: 1px solid #333; color: #e0e0e0; border-radius: 4px; font-size: 14px; }
+    button { background: #007acc; color: white; border: none; cursor: pointer; font-weight: bold; }
+    button:hover { background: #0098ff; }
+    button:disabled { background: #555; cursor: not-allowed; }
+    pre { background: #1a1a1a; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 12px; border: 1px solid #333; max-height: 500px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+    .error { color: #ff5555; }
+    .success { color: #50fa7b; }
+    .info { color: #8be9fd; font-size: 14px; }
+    .counter { color: #888; font-size: 13px; }
+    h1 { color: #fff; }
+    h3 { color: #ccc; }
+    hr { border: none; border-top: 1px solid #333; }
+    label { display: block; margin-top: 12px; color: #aaa; font-size: 13px; }
+    .optional { color: #666; font-style: italic; }
+    .field-group { background: #151515; border: 1px solid #222; border-radius: 6px; padding: 15px; margin: 15px 0; }
+    .field-group-title { color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .endpoint-box { background: #1a1a2e; border: 1px solid #333; border-radius: 4px; padding: 12px; margin: 10px 0; font-size: 13px; word-break: break-all; }
+    .endpoint-box code { color: #8be9fd; }
+    .stats { display: flex; gap: 20px; margin: 10px 0; }
+    .stat-box { background: #151515; border: 1px solid #222; border-radius: 4px; padding: 10px 15px; flex: 1; text-align: center; }
+    .stat-value { font-size: 24px; font-weight: bold; color: #50fa7b; }
+    .stat-label { font-size: 11px; color: #666; text-transform: uppercase; }
+    .badge { display: inline-block; background: #333; color: #aaa; padding: 2px 8px; border-radius: 3px; font-size: 11px; margin-left: 5px; }
+  </style>
+</head>
+<body>
+  <h1>📺 Stalker → M3U Generator</h1>
+  <p class="info">Stalker Middleware IPTV → Standard M3U Playlist</p>
+  <hr>
+
+  <div class="stats">
+    <div class="stat-box">
+      <div class="stat-label">Default MAC</div>
+      <div class="stat-value" style="font-size: 16px;">00:1A:79:CE:5E:01</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Portal</div>
+      <div class="stat-value" style="font-size: 16px;">livebox.pro:80/c</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Auth</div>
+      <div class="stat-value" style="font-size: 16px;">MAC + Serial + IDs</div>
+    </div>
+  </div>
+
+  <form id="playlistForm">
+    <div class="field-group">
+      <div class="field-group-title">📡 Portal</div>
+      <label>Base URL</label>
+      <input type="url" id="baseUrl" value="http://livebox.pro:80/c" placeholder="http://portal.example.com:80/c">
+    </div>
+
+    <div class="field-group">
+      <div class="field-group-title">🔑 Authentication</div>
+
+      <label>MAC Address <span class="badge">required</span></label>
+      <input type="text" id="mac" value="00:1A:79:CE:5E:01" placeholder="00:1A:79:CE:5E:01" pattern="^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$">
+
+      <label>Serial_Cut <span class="optional">(optional)</span></label>
+      <input type="text" id="serial" value="6BD46F6477D17" placeholder="Serial number">
+
+      <label>Dev_ID_1 <span class="optional">(optional)</span></label>
+      <input type="text" id="devId1" value="BAFFF2D04EA1A75B3F68C1A2AD96557C79C4024A1186605F617F34DD476CA73D" placeholder="Device ID 1">
+
+      <label>Dev_ID_2 <span class="optional">(optional)</span></label>
+      <input type="text" id="devId2" value="59FC31A3CE15795E86B2A340310541733C0948A9528A10AC047927E5222D414F" placeholder="Device ID 2">
+    </div>
+
+    <button type="submit" id="generateBtn">🚀 Generate Playlist</button>
+  </form>
+
+  <div id="result" style="display:none;">
+    <hr>
+    <h3>📋 Result</h3>
+    <p id="status"></p>
+    <pre id="output"></pre>
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
+      <button id="downloadBtn" style="flex: 1; display:none;">⬇ Download .m3u</button>
+      <button id="copyBtn" style="flex: 1; display:none; background: #444;">📋 Copy</button>
+    </div>
+  </div>
+
+  <div id="error" class="error" style="display:none; margin-top: 15px; padding: 10px; background: #1a0a0a; border: 1px solid #551111; border-radius: 4px;"></div>
+
+  <hr style="margin-top: 30px;">
+  <div class="endpoint-box">
+    <strong>🔗 Direct API Endpoint:</strong><br>
+    <code>/api/playlist.m3u?mac=00:1A:79:CE:5E:01&base=http://livebox.pro:80/c&serial=6BD46F6477D17&dev_id1=BAFFF2D04EA1A75B3F68C1A2AD96557C79C4024A1186605F617F34DD476CA73D&dev_id2=59FC31A3CE15795E86B2A340310541733C0948A9528A10AC047927E5222D414F</code><br><br>
+    <strong>📄 JSON Format:</strong><br>
+    <code>/api/playlist.json?mac=00:1A:79:CE:5E:01&base=http://livebox.pro:80/c</code>
+  </div>
+
+  <script>
+    const form = document.getElementById('playlistForm');
+    const result = document.getElementById('result');
+    const errorDiv = document.getElementById('error');
+    const output = document.getElementById('output');
+    const status = document.getElementById('status');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const generateBtn = document.getElementById('generateBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const base = document.getElementById('baseUrl').value.trim();
+      const mac = document.getElementById('mac').value.trim().toUpperCase();
+      const serial = document.getElementById('serial').value.trim();
+      const devId1 = document.getElementById('devId1').value.trim();
+      const devId2 = document.getElementById('devId2').value.trim();
+
+      result.style.display = 'none';
+      errorDiv.style.display = 'none';
+      generateBtn.disabled = true;
+      generateBtn.textContent = '⏳ Fetching playlist...';
+
+      try {
+        // Build query
+        const params = new URLSearchParams();
+        params.set('base', base);
+        params.set('mac', mac);
+        if (serial) params.set('serial', serial);
+        if (devId1) params.set('dev_id1', devId1);
+        if (devId2) params.set('dev_id2', devId2);
+
+        const res = await fetch(`/api/playlist.m3u?${params.toString()}`);
+        const text = await res.text();
+
+        if (!res.ok) {
+          try {
+            const err = JSON.parse(text);
+            throw new Error(err.message || `HTTP ${res.status}`);
+          } catch (parseErr) {
+            throw new Error(`HTTP ${res.status}: ${text.substring(0, 100)}`);
+          }
+        }
+
+        // Count channels
+        const lines = text.split('\n');
+        const channels = lines.filter(l => l.startsWith('#EXTINF:-1')).length;
+        const urls = lines.filter(l => l.startsWith('http')).length;
+
+        status.innerHTML = `<span class="success">✓ ${channels} channels found (${urls} streams)</span>`;
+        output.textContent = text;
+        result.style.display = 'block';
+
+        downloadBtn.style.display = 'inline-block';
+        downloadBtn.onclick = () => {
+          const blob = new Blob([text], { type: 'audio/x-mpegurl' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `playlist-${mac.replace(/:/g, '')}.m3u`;
+          a.click();
+          URL.revokeObjectURL(url);
+        };
+
+        copyBtn.style.display = 'inline-block';
+        copyBtn.onclick = async () => {
+          await navigator.clipboard.writeText(text);
+          copyBtn.textContent = '✅ Copied!';
+          setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 2000);
+        };
+
+      } catch (err) {
+        errorDiv.textContent = `❌ ${err.message}`;
+        errorDiv.style.display = 'block';
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.textContent = '🚀 Generate Playlist';
+      }
+    });
+  </script>
+</body>
+</html>
