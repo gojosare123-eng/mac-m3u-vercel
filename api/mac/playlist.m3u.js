@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const fetch = require('node-fetch');
 
-const macAddress = process.env.MAC_ADDRESS;
+const macAddress = '00:1A:79:BE:B2:2A;
 const baseUrl = 'http://livebox.pro';
 
 app.get('/api/mac/playlist.m3u', async (req, res) => {
